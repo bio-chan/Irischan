@@ -45,42 +45,24 @@
   </div>
 
 <script>
-const msgs = document.getElementById('msgs');
-const form = document.getElementById('f');
-const input = document.getElementById('t');
-
-function add(text, role='you', extraClass=''){
-  const d=document.createElement('div');
-  d.className=`msg ${role} ${extraClass}`.trim();
-  d.textContent=text;
-  msgs.appendChild(d);
-  msgs.scrollTop = msgs.scrollHeight;
-  return d;
-}
-
-form.addEventListener('submit', async (e)=>{
+const msgs=document.getElementById('msgs'), form=document.getElementById('f'), input=document.getElementById('t');
+function add(t,role='you'){ const d=document.createElement('div'); d.className='msg '+role; d.textContent=t; msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight; return d; }
+form.addEventListener('submit', async e=>{
   e.preventDefault();
-  const text = input.value.trim(); if(!text) return;
+  const text=input.value.trim(); if(!text) return;
   add(text,'you'); input.value='';
-  const thinking = add('…กำลังคิด…','bot','thinking');
-
+  const wait=add('…กำลังคิด…','bot');
   try{
-    // ลอง POST ก่อน ถ้าโฮสต์บล็อกจะลอง GET ต่อ
-    let r = await fetch('chat.php', {
-      method:'POST',
-      headers:{'Content-Type':'application/x-www-form-urlencoded'},
-      body:'msg='+encodeURIComponent(text)
-    });
-    if (r.status===405) r = await fetch('chat.php?msg='+encodeURIComponent(text));
-    const out = await r.text();
-    thinking.remove();
-    add(out || 'ไม่ได้รับคำตอบ','bot');
-  }catch(err){
-    thinking.remove();
-    add('เออเรอร์:\n'+(err?.message||String(err)),'bot err');
-  }
+    let r=await fetch('chat.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'msg='+encodeURIComponent(text)});
+    if(r.status===405) r=await fetch('chat.php?msg='+encodeURIComponent(text));
+    const body=await r.text();
+    wait.remove();
+    add(body || 'ไม่ได้รับคำตอบ','bot');
+  }catch(err){ wait.remove(); add('เออเรอร์: '+(err?.message||String(err)),'bot'); }
 });
 </script>
+
 </body>
 </html>
+
 
