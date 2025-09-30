@@ -6,7 +6,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { exit; } // preflight
 
 // ======= ตั้ง API KEY =======
-$OPENAI_API_KEY = "sk-ใส่คีย์ของคุณ";
+$OPENAI_API_KEY = "d5c92324-f979-494b-bacb-b36683242fab";
 
 // รับข้อความจาก GET/POST
 $userMsg = '';
@@ -39,3 +39,4 @@ curl_close($ch);
 
 $j = json_decode($res, true);
 echo $j['choices'][0]['message']['content'] ?? "ไม่มีคำตอบจาก AI";
+
