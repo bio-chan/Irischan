@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>คุยกับ AI</title>
+  <style>
+    body { font-family: sans-serif; background:#fff0f6; }
+    .chat-box { max-width:600px;margin:40px auto;background:#fff;border-radius:16px;
+      box-shadow:0 3px 8px rgba(0,0,0,.1);display:flex;flex-direction:column;height:80vh; }
+    .messages { flex:1;overflow-y:auto;padding:16px; }
+    .msg {margin:8px 0;padding:10px 14px;border-radius:18px;max-width:70%;line-height:1.4;}
+    .you {background:#ec4899;color:white;margin-left:auto;}
+    .bot {background:#fce7f3;color:#831843;margin-right:auto;}
+    form {display:flex;padding:12px;border-top:2px solid #f9a8d4;background:#fff0f6;}
+    input {flex:1;padding:10px;border-radius:20px;border:1px solid #f9a8d4;}
+    button {margin-left:8px;padding:10px 18px;border:none;border-radius:20px;background:#ec4899;color:white;cursor:pointer;}
+  </style>
+</head>
+<body>
+  <div class="chat-box">
+    <div class="messages" id="messages">
+      <div class="msg bot">สวัสดี เราคือ Iris 💕</div>
+    </div>
+    <form id="chatForm">
+      <input id="input" type="text" placeholder="พิมพ์ข้อความ..." />
+      <button type="submit">ส่ง</button>
+    </form>
+  </div>
+
+<script>
+const form = document.getElementById('chatForm');
+const input = document.getElementById('input');
+const messages = document.getElementById('messages');
+
+function addMessage(text, role='you'){
+  const div = document.createElement('div');
+  div.className = 'msg '+role;
+  div.textContent = text;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+form.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const text = input.value.trim();
+  if(!text) return;
+  addMessage(text,'you');
+  input.value='';
+  // ส่งไป chat.php
+  const resp = await fetch('chat.php', {
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:'msg='+encodeURIComponent(text)
+  });
+  const data = await resp.text();
+  addMessage(data,'bot');
+});
+</script>
+</body>
+</html>
