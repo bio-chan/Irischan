@@ -13,8 +13,8 @@ header("Content-Type: text/plain; charset=utf-8");
 $PROVIDER = 'groq';  // 'groq' (แนะนำ) หรือ 'openrouter'
 
 // ======= ใส่ API KEY ของคุณ =======
-$GROQ_API_KEY      = 'gsk_d5c92324-f979-494b-bacb-b36683242fab';
-$OPENROUTER_API_KEY= 'sk-or-v1-d5c92324-f979-494b-bacb-b36683242fab';
+$GROQ_API_KEY      = 'd5c92324-f979-494b-bacb-b36683242fab';
+$OPENROUTER_API_KEY= 'd5c92324-f979-494b-bacb-b36683242fab';
 
 // ===== รับข้อความผู้ใช้ =====
 $msg = trim($_POST['msg'] ?? $_GET['msg'] ?? '');
@@ -74,3 +74,4 @@ $j = json_decode($res, true);
 // โครงตอบกลับของทั้ง Groq และ OpenRouter เหมือน OpenAI
 $out = $j['choices'][0]['message']['content'] ?? '';
 echo $out !== '' ? $out : "ไม่มีคำตอบจาก AI";
+
