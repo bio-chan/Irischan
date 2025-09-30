@@ -1,68 +1,43 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-  <meta charset="UTF-8" />
-  <title>คุยกับIris</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root{
-      --pink:#ec4899; --pink-2:#db2777; --bg:#fff0f6; --bubble:#fce7f3; --text:#831843;
-    }
-    *{box-sizing:border-box}
-    body{font-family:system-ui,Segoe UI,Roboto,Prompt,sans-serif;background:var(--bg);margin:0}
-    .wrap{max-width:700px;margin:28px auto;padding:0 14px}
-    .chat{height:78vh;background:#fff;border-radius:18px;box-shadow:0 6px 20px rgba(0,0,0,.07);
-          display:flex;flex-direction:column;overflow:hidden;border:2px solid #f9a8d4}
-    .top{padding:14px 18px;border-bottom:2px solid #f9a8d4;background:#fff;display:flex;gap:8px;align-items:center}
-    .title{font-weight:700;color:var(--text)}
-    .msgs{flex:1;overflow-y:auto;padding:16px;background:linear-gradient(180deg,#fff 0,#fff 70%,#ffe4ef 100%)}
-    .msg{max-width:78%;margin:8px 0;padding:10px 14px;border-radius:18px;line-height:1.45;word-wrap:break-word}
-    .you{margin-left:auto;background:var(--pink);color:#fff;border-bottom-right-radius:6px}
-    .bot{margin-right:auto;background:var(--bubble);color:var(--text);border-bottom-left-radius:6px}
-    form{display:flex;gap:10px;padding:12px;border-top:2px solid #f9a8d4;background:#fff}
-    input[type=text]{flex:1;padding:12px 14px;border-radius:999px;border:2px solid #f9a8d4;outline:none}
-    button{padding:12px 18px;border:none;border-radius:999px;background:var(--pink);color:#fff;font-weight:600;cursor:pointer}
-    button:hover{background:var(--pink-2)}
-    .hint{font-size:12px;opacity:.7;margin-top:8px;text-align:center;color:var(--text)}
-    .err{white-space:pre-wrap}
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <div class="chat">
-      <div class="top">
-        <div class="title">คุยกับIris💕</div>
-      </div>
-      <div class="msgs" id="msgs">
-        <div class="msg bot">สวัสดี เราคือ AI พิมพ์มาได้เลยจ้า 💗</div>
-      </div>
-      <form id="f">
-        <input id="t" type="text" placeholder="พิมพ์ข้อความ..." autocomplete="off" />
-        <button type="submit">ส่ง</button>
-      </form>
-    </div>
-    <div class="hint">ข้อมูลถูกประมวลผลที่ฝั่งเซิร์ฟเวอร์ผ่าน LLaMA (Groq)</div>
-  </div>
-
 <script>
-const msgs=document.getElementById('msgs'), form=document.getElementById('f'), input=document.getElementById('t');
-function add(t,role='you'){ const d=document.createElement('div'); d.className='msg '+role; d.textContent=t; msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight; return d; }
-form.addEventListener('submit', async e=>{
+const msgs = document.getElementById('msgs');
+const form = document.getElementById('f');
+const input = document.getElementById('t');
+
+function add(text, role='you', extra=''){
+  const d=document.createElement('div');
+  d.className=`msg ${role} ${extra}`;
+  d.textContent=text;
+  msgs.appendChild(d);
+  msgs.scrollTop=msgs.scrollHeight;
+  return d;
+}
+
+form.addEventListener('submit', async (e)=>{
   e.preventDefault();
   const text=input.value.trim(); if(!text) return;
   add(text,'you'); input.value='';
-  const wait=add('…กำลังคิด…','bot');
+  const thinking=add('…กำลังคิด…','bot');
+
   try{
-    let r=await fetch('chat.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'msg='+encodeURIComponent(text)});
-    if(r.status===405) r=await fetch('chat.php?msg='+encodeURIComponent(text));
-    const body=await r.text();
-    wait.remove();
-    add(body || 'ไม่ได้รับคำตอบ','bot');
-  }catch(err){ wait.remove(); add('เออเรอร์: '+(err?.message||String(err)),'bot'); }
+    // เปลี่ยน URL ตรงนี้ให้เป็นของ Worker คุณ
+    const workerURL = 'https://your-worker-name.workers.dev/chat';
+
+    // ส่งแบบ POST x-www-form-urlencoded
+    let r = await fetch(workerURL, {
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:'msg='+encodeURIComponent(text)
+    });
+
+    // fallback เผื่อโฮสต์แปลกๆ
+    if (r.status===405) r = await fetch(`${workerURL}?msg=${encodeURIComponent(text)}`);
+
+    const out = await r.text();
+    thinking.remove();
+    add(out || 'ไม่ได้รับคำตอบ','bot');
+  }catch(err){
+    thinking.remove();
+    add('เออเรอร์: '+(err?.message||String(err)),'bot');
+  }
 });
 </script>
-
-</body>
-</html>
-
-
