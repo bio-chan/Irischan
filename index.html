@@ -1,43 +1,279 @@
-<script>
-const msgs = document.getElementById('msgs');
-const form = document.getElementById('f');
-const input = document.getElementById('t');
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GDD One-Pager: MUEA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #0a0a0a;
+            color: #d4d4d4;
+            background-image: radial-gradient(#222 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .gdd-box {
+            background-color: #111;
+            border: 1px solid #333;
+            padding: 1rem;
+            position: relative;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+            transition: border-color 0.3s;
+        }
+        .gdd-box:hover {
+            border-color: #7f1d1d; /* Red hover */
+        }
+        .gdd-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #7f1d1d; /* Dark Red */
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 0.25rem;
+        }
+        .core-loop-arrow {
+            color: #7f1d1d;
+            font-weight: bold;
+            margin: 0 0.25rem;
+        }
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            .gdd-box {
+                background: white;
+                border: 1px solid #ccc;
+                box-shadow: none;
+                break-inside: avoid;
+            }
+            .gdd-title {
+                color: #555;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 text-sm">
 
-function add(text, role='you', extra=''){
-  const d=document.createElement('div');
-  d.className=`msg ${role} ${extra}`;
-  d.textContent=text;
-  msgs.appendChild(d);
-  msgs.scrollTop=msgs.scrollHeight;
-  return d;
-}
+    <div class="max-w-6xl mx-auto space-y-4">
+        
+        <!-- Header Controls -->
+        <div class="flex justify-between items-center mb-6 no-print">
+            <h1 class="text-2xl font-bold text-red-700 tracking-wider">ONE-PAGER GDD</h1>
+            <button onclick="window.print()" class="bg-red-800 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-medium transition">
+                พิมพ์เป็น PDF (Print)
+            </button>
+        </div>
 
-form.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const text=input.value.trim(); if(!text) return;
-  add(text,'you'); input.value='';
-  const thinking=add('…กำลังคิด…','bot');
+        <!-- TOP ROW: TITLE & ID -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="gdd-box md:col-span-1">
+                <div class="gdd-title">MUEA</div>
+                <div class="font-bold text-xl text-white">MUEA:คืนหลอนเมือกลับ</div>
+                <div class="text-xs text-gray-500 mt-1">Current working title</div>
+            </div>
+            <div class="gdd-box md:col-span-3">
+                <div class="gdd-title">ID (คำอธิบายสั้นประโยคเดียว)</div>
+                <div class="font-medium text-base text-gray-200 mt-1">
+                    เกมแนวสยองขวัญบริหารหมู่บ้านในอีสานยุค 90 ที่คุณต้องคัดกรองคนเข้า-ออกภายใต้ทรัพยากรจำกัด และแยกให้ออกว่าใครคือ "คน" ใครคือ "ผี" ก่อนที่ความกลัวจะกัดกินและทำให้ชาวบ้านฆ่ากันเอง
+                </div>
+            </div>
+        </div>
 
-  try{
-    // เปลี่ยน URL ตรงนี้ให้เป็นของ Worker คุณ
-    const workerURL = 'https://your-worker-name.workers.dev/chat';
+        <!-- MAIN CONTENT: 3 COLUMNS -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            <!-- LEFT COLUMN -->
+            <div class="space-y-4 flex flex-col">
+                <div class="gdd-box">
+                    <div class="gdd-title">THEME & GENRE</div>
+                    <ul class="list-disc list-inside text-gray-300 space-y-1">
+                        <li><strong>Theme:</strong> ความระแวงในสิ่งที่คุ้นเคย (Paranoia), จริยธรรมการเอาตัวรอด, ความเชื่อหมู่บ้านอีสาน</li>
+                        <li><strong>Genre:</strong> Horror Management / Social Deduction</li>
+                    </ul>
+                </div>
 
-    // ส่งแบบ POST x-www-form-urlencoded
-    let r = await fetch(workerURL, {
-      method:'POST',
-      headers:{'Content-Type':'application/x-www-form-urlencoded'},
-      body:'msg='+encodeURIComponent(text)
-    });
+                <div class="gdd-box">
+                    <div class="gdd-title">KEY PILLARS (เสาหลักของเกม)</div>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <span class="bg-red-900/40 text-red-200 border border-red-800 px-2 py-1 rounded text-xs">กลัว (Fear)</span>
+                        <span class="bg-red-900/40 text-red-200 border border-red-800 px-2 py-1 rounded text-xs">ระแวง (Paranoia)</span>
+                        <span class="bg-red-900/40 text-red-200 border border-red-800 px-2 py-1 rounded text-xs">ไม่มั่นใจ (Uncertainty)</span>
+                        <span class="bg-red-900/40 text-red-200 border border-red-800 px-2 py-1 rounded text-xs">Snowball Effect</span>
+                    </div>
+                </div>
 
-    // fallback เผื่อโฮสต์แปลกๆ
-    if (r.status===405) r = await fetch(`${workerURL}?msg=${encodeURIComponent(text)}`);
+                <div class="gdd-box">
+                    <div class="gdd-title">VISUAL STYLE</div>
+                    <p class="text-gray-300 mb-2">แนว Analog Horror ผสมกลิ่นอายชนบทไทยยุค 90</p>
+                    <ul class="list-disc list-inside text-gray-400 text-xs space-y-1">
+                        <li>ภาพสีซีดจางแบบฟิล์มเก่า (VHS filter)</li>
+                        <li>ความสยองแบบ Uncanny Valley (คนที่มีท่าทางผิดปกติกังวลเกินเหตุ)</li>
+                        <li>เมื่อค่า "ความเครียด" ในหมู่บ้านสูง โทนสีจะบิดเบี้ยว (Distorted) และมี Noise</li>
+                    </ul>
+                </div>
 
-    const out = await r.text();
-    thinking.remove();
-    add(out || 'ไม่ได้รับคำตอบ','bot');
-  }catch(err){
-    thinking.remove();
-    add('เออเรอร์: '+(err?.message||String(err)),'bot');
-  }
-});
-</script>
+                <div class="gdd-box flex-grow">
+                    <div class="gdd-title">MUSIC & SOUND STYLE</div>
+                    <ul class="list-disc list-inside text-gray-300 text-xs space-y-2">
+                        <li><strong>Soundscape:</strong> เสียงธรรมชาติ (จิ้งหรีด, ลม) ที่เงียบสงัดจนน่าอึดอัด แทรกด้วย Static Noise ตามค่าความเครียด</li>
+                        <li><strong>Music:</strong> เครื่องดนตรีอีสาน (ซอ, แคน) บรรเลงโน้ตแบบ Dissonant (เพี้ยน/หลอน) ผสม Drone bass ลึกๆ</li>
+                        <li><strong>No Jump Scares:</strong> เน้นเสียงบรรยากาศที่กดดัน ค่อยๆ คืบคลาน</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- CENTER COLUMN -->
+            <div class="space-y-4 flex flex-col">
+                <div class="gdd-box border-red-800/50">
+                    <div class="gdd-title text-red-500">MAIN AIM (เป้าหมายหลัก)</div>
+                    <p class="text-gray-200 font-medium text-center py-2">
+                        " บริหารหมู่บ้านให้รอดพ้นจากภัย 'ไข้ป่าแดง' และ 'ผี' ให้ครบ 30 วัน โดยรักษาจำนวนคนเป็นให้ได้มากที่สุด "
+                    </p>
+                </div>
+
+                <div class="gdd-box border-red-800/50">
+                    <div class="gdd-title text-red-500">MAIN MECH TO ACHIEVE AIM</div>
+                    <p class="text-gray-300 mb-2">การสืบสวนและตัดสินใจภายใต้ทรัพยากรที่จำกัด:</p>
+                    <ul class="list-disc list-inside text-gray-400 text-xs space-y-1">
+                        <li><strong>Action Points (AP):</strong> มีโควต้ากระทำเพียงวันละ 5 AP (รีเซ็ตทุกวัน)</li>
+                        <li><strong>เอกสาร & ซักประวัติ:</strong> เช็คข้อมูลคนในหมู่บ้าน และจับผิดจากคำพูด/ท่าทาง</li>
+                        <li><strong>ตัดสินใจ:</strong> เลือกว่าจะรับใครเข้า, ขับไล่ใครออก, หรือส่งใครไปหาเสบียงเสี่ยงตาย</li>
+                    </ul>
+                </div>
+
+                <div class="gdd-box bg-black text-center">
+                    <div class="gdd-title">CORE LOOP (วงจรเกมหลัก)</div>
+                    <div class="flex flex-col items-center justify-center space-y-2 mt-4 text-xs font-semibold text-gray-300">
+                        <div class="bg-gray-800 px-3 py-1 rounded border border-gray-600">1. รับข้อมูล (จากอำเภอ/ข่าวลือ)</div>
+                        <div class="core-loop-arrow">↓</div>
+                        <div class="bg-gray-800 px-3 py-1 rounded border border-red-900 text-red-200">2. บริหาร AP 5 แต้ม (ซักถาม/ส่งออก/ไล่)</div>
+                        <div class="core-loop-arrow">↓</div>
+                        <div class="bg-gray-800 px-3 py-1 rounded border border-gray-600">3. สรุปผลลัพธ์ (ความเครียด/ติดโรค/เสบียง)</div>
+                        <div class="core-loop-arrow">↓</div>
+                        <div class="bg-gray-800 px-3 py-1 rounded border border-gray-600">4. เผชิญเหตุการณ์กลางคืน (คนตาย/ศาลเตี้ย)</div>
+                        <div class="core-loop-arrow">↻ วนลูปสู่วันใหม่</div>
+                    </div>
+                </div>
+
+                <div class="gdd-box flex-grow">
+                    <div class="gdd-title">STORY (เนื้อเรื่อง)</div>
+                    <p class="text-gray-300 text-xs leading-relaxed">
+                        โรคระบาด "ไข้ป่าแดง" ซัดเข้าหมู่บ้านห่างไกล พร้อมๆ กับข่าวลือเรื่องผี (กองกอย) ที่ปลอมตัวเนียนเข้ามากับผู้ป่วย ผู้เล่นคือผู้มีอำนาจตัดสินใจประจำหมู่บ้าน<br><br>
+                        <strong>Dilemma:</strong> คุณต้องเผชิญกับทางเลือกที่บีบคั้น เช่น "ลุงชัยคนหาของเก่ง แต่ท่าทางแกเริ่มแปลกไป จะยอมรับเข้ามาเอาเสบียงและเสี่ยง หรือทิ้งลุงแกไว้ข้างนอกเพื่อเซฟคนใน?" หากตัดสินใจพลาด ความกลัวจะทำให้ชาวบ้านตั้งศาลเตี้ยล่าแม่มดกันเอง
+                    </p>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="space-y-4 flex flex-col">
+                
+                <!-- ENABLERS -->
+                <div class="gdd-box">
+                    <div class="gdd-title text-green-700">ENABLERS (ตัวช่วย)</div>
+                    <div class="mb-2">
+                        <span class="text-xs font-bold text-gray-400">ACTIVE (ผู้เล่นลงมือ)</span>
+                        <ul class="list-disc list-inside text-gray-300 text-xs pl-2">
+                            <li>ส่งคนออกไปสำรวจ/หาของ</li>
+                            <li>ขับไล่คนที่มีความเสี่ยงออกจากหมู่บ้าน</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-gray-400">PASSIVE (มีให้ในเกม)</span>
+                        <ul class="list-disc list-inside text-gray-300 text-xs pl-2">
+                            <li>จดหมายรายงานจากอำเภอ (เบาะแสโรค)</li>
+                            <li>แผนที่ชี้เป้าบ้านแต่ละหลังในหมู่บ้าน</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- BLOCKERS -->
+                <div class="gdd-box">
+                    <div class="gdd-title text-red-700">BLOCKERS (อุปสรรค)</div>
+                    <div class="mb-2">
+                        <span class="text-xs font-bold text-gray-400">ACTIVE (สิ่งที่ขัดขวางจังๆ)</span>
+                        <ul class="list-disc list-inside text-gray-300 text-xs pl-2">
+                            <li>ผีที่ปลอมตัวเนียนขอเข้ามาในหมู่บ้าน</li>
+                            <li>ชาวบ้านที่เครียดจัดจนก่อเหตุ "ล่าแม่มด"</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-gray-400">PASSIVE (อุปสรรคแฝง)</span>
+                        <ul class="list-disc list-inside text-gray-300 text-xs pl-2">
+                            <li>ข่าวลือซุบซิบ (อาจจริงหรือลวง)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- WIN / LOSE -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="gdd-box">
+                        <div class="gdd-title">WIN CONDITION</div>
+                        <ul class="list-disc list-inside text-gray-300 text-[11px]">
+                            <li>ผ่านพ้น 30 วัน</li>
+                            <li>Multi-ending: จบตามสัดส่วน (คน>ผี, ผี>คน, ฯลฯ)</li>
+                        </ul>
+                    </div>
+                    <div class="gdd-box">
+                        <div class="gdd-title">LOSE CONDITION</div>
+                        <ul class="list-disc list-inside text-gray-300 text-[11px]">
+                            <li>คนตาย/ติดเชื้อทั้งหมู่บ้าน</li>
+                            <li>โดนชาวบ้านขับไล่/ฆ่า</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="gdd-box flex-grow">
+                    <div class="gdd-title">FEATURES</div>
+                    <ul class="list-disc list-inside text-gray-300 text-xs space-y-1">
+                        <li><strong>ระบบ Stress-based Event:</strong> เสียงภาพเปลี่ยน และอีเวนต์สุ่มเลวร้ายขึ้นเมื่อเกจเครียดสูง</li>
+                        <li><strong>Branching Consequences:</strong> ทุกการโกหก หรือพลาดส่งผีเข้า จะฆ่า NPC และลดยอดแรงงาน</li>
+                        <li><strong>Uncanny Animations:</strong> ท่าทางกังวลของตัวละครที่เป็นเบาะแสสำคัญในการเล่น</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- BOTTOM ROW -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 pb-8">
+            <div class="gdd-box md:col-span-1">
+                <div class="gdd-title">AUDIENCE & PLATFORM</div>
+                <div class="text-xs text-gray-300 space-y-1 mt-1">
+                    <p><strong>Audience:</strong> แฟนเกมอินดี้สยองขวัญจิตวิทยา และสายบริหารทรัพยากร (Papers, Please, This War of Mine)</p>
+                    <p><strong>Platform:</strong> PC (Steam) / itch.io</p>
+                </div>
+            </div>
+            
+            <div class="gdd-box md:col-span-1">
+                <div class="gdd-title">Cosmo TEAM</div>
+                <div class="text-xs text-gray-300 mt-1">
+                    <p>นายกิตติศักดิ์ คนเกณฑ์</p>
+                    <p>ตำแหน่ง: Game Designer / Project Lead</p>
+                    <p>นางสาววรณิชากัญญาวีร์ พันชนะ</p>
+                    <p>ตำแหน่ง: 2D Artist / Animator</p>
+                    <p>นายพรรณกวี ราวกลาง</p>
+                    <p>ตำแหน่ง: Programmer / Sound Designer</p>
+                </div>
+            </div>
+
+            <div class="gdd-box md:col-span-2 border-green-800/50 bg-green-900/10">
+                <div class="gdd-title text-green-500">PERSONAL DEV GOAL (เป้าหมายส่วนตัว)</div>
+                <ul class="list-disc list-inside text-gray-300 text-sm mt-1">
+                    <li>สร้างประสบการณ์เกมสยองขวัญที่เน้น <strong>บรรยากาศจิตวิทยาและกดดัน</strong> โดยพึ่งพา Jump Scare ให้น้อยที่สุด</li>
+                    <li>ถ่ายทอดเสน่ห์ของ <strong>ตำนานท้องถิ่นอีสาน</strong> ออกมาในรูปแบบที่แปลกใหม่บนสื่อวิดีโอเกม</li>
+                    <li>เผยแผ่เกม <strong>ไปให้ผู้คนในสังคมทั้งในและนอกประเทศได้เห็น</strong> โดยได้โอกาสออกบูธ</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
