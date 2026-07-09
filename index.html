@@ -3,277 +3,579 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GDD One-Pager: MUEA</title>
+    <title>Neon Party Game</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800;900&display=swap');
+        
         body {
             font-family: 'Kanit', sans-serif;
-            background-color: #0a0a0a;
-            color: #d4d4d4;
-            background-image: radial-gradient(#222 1px, transparent 1px);
-            background-size: 20px 20px;
+            background-color: #05030f;
+            overflow-x: hidden;
+            color: white;
         }
-        .gdd-box {
-            background-color: #111;
-            border: 1px solid #333;
-            padding: 1rem;
-            position: relative;
-            box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
-            transition: border-color 0.3s;
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
         }
-        .gdd-box:hover {
-            border-color: #7f1d1d; /* Red hover */
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.8; filter: drop-shadow(0 0 15px rgba(236,72,153,0.6)); }
+            50% { opacity: 1; filter: drop-shadow(0 0 35px rgba(236,72,153,1)); }
         }
-        .gdd-title {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: #7f1d1d; /* Dark Red */
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-            border-bottom: 1px solid #333;
-            padding-bottom: 0.25rem;
+        
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-pulse-glow { animation: pulse-glow 3s infinite; }
+        .animate-spin-slow { animation: spin 8s linear infinite; }
+        
+        .glass-panel {
+            background: rgba(20, 15, 40, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
         }
-        .core-loop-arrow {
-            color: #7f1d1d;
-            font-weight: bold;
-            margin: 0 0.25rem;
+        .glass-panel:hover {
+            background: rgba(30, 20, 60, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        @media print {
-            body {
-                background: white;
-                color: black;
-            }
-            .gdd-box {
-                background: white;
-                border: 1px solid #ccc;
-                box-shadow: none;
-                break-inside: avoid;
-            }
-            .gdd-title {
-                color: #555;
-            }
-            .no-print {
-                display: none;
-            }
+        
+        .neon-text-pink { text-shadow: 0 0 10px rgba(236,72,153,0.8), 0 0 20px rgba(236,72,153,0.4); }
+        .neon-text-blue { text-shadow: 0 0 10px rgba(56,189,248,0.8), 0 0 20px rgba(56,189,248,0.4); }
+        .neon-text-amber { text-shadow: 0 0 10px rgba(251,191,36,0.8), 0 0 20px rgba(251,191,36,0.4); }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .view-section { display: none; min-height: 100vh; width: 100%; position: relative; z-index: 10; flex-direction: column; align-items: center; padding: 2.5rem 1rem; }
+        .view-section.active { display: flex; animation: fadeIn 0.5s ease-out forwards; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .picture-grid {
+            display: grid;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+        }
+        .picture-panel {
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            background-color: rgba(8, 15, 30, 1);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            user-select: none;
+        }
+        .picture-panel.revealed {
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        body {
+            background-image: radial-gradient(ellipse at top, #1b1138, #05030f, black);
         }
     </style>
 </head>
-<body class="p-4 md:p-8 text-sm">
+<body>
 
-    <div class="max-w-6xl mx-auto space-y-4">
+    <div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-fuchsia-600/40 rounded-full pointer-events-none z-0"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-600/40 rounded-full pointer-events-none z-0"></div>
+    <div class="fixed top-[40%] left-[50%] translate-x-[-50%] w-[60%] h-[20%] bg-indigo-600/20 rounded-full pointer-events-none z-0"></div>
+
+    <div id="view-lobby" class="view-section active justify-center">
+        <div class="absolute top-[20%] left-[15%] w-72 h-72 bg-pink-600/50 rounded-full animate-float z-0"></div>
+        <div class="absolute bottom-[20%] right-[15%] w-80 h-80 bg-cyan-600/50 rounded-full animate-float z-0" style="animation-delay: 2s;"></div>
         
-        <!-- Header Controls -->
-        <div class="flex justify-between items-center mb-6 no-print">
-            <h1 class="text-2xl font-bold text-red-700 tracking-wider">ONE-PAGER GDD</h1>
-            <button onclick="window.print()" class="bg-red-800 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-medium transition">
-                พิมพ์เป็น PDF (Print)
+        <div class="relative z-10 w-full max-w-5xl flex flex-col items-center mt-10">
+            <div class="mb-16 text-center animate-pulse-glow relative">
+                <i data-lucide="sparkles" class="absolute -top-6 -left-8 text-pink-400 w-10 h-10 animate-spin-slow"></i>
+                <h1 class="text-6xl md:text-8xl font-black mb-4 tracking-tighter uppercase">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-br from-cyan-300 via-indigo-400 to-fuchsia-400">Neon</span>
+                    <span class="text-white"> Party</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-indigo-200 font-light tracking-widest uppercase opacity-80">Ultimate Event Game System</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+                <div class="glass-panel rounded-[2rem] p-8 flex flex-col items-center text-center group transition-all duration-300">
+                    <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(56,189,248,0.4)] transition-transform duration-300 rotate-3">
+                        <i data-lucide="image" class="w-12 h-12 text-white drop-shadow-lg"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold mb-3 neon-text-blue">เปิดป้ายทายภาพ</h2>
+                    <p class="text-indigo-200/70 mb-8 h-12">ทายภาพปริศนาภายใต้แผ่นป้าย ลุ้นระทึกทุกการเปิด</p>
+                    <button onclick="startContinuousPlay('picture')" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 py-4 rounded-2xl font-bold text-lg shadow-[0_0_20px_rgba(56,189,248,0.3)] flex justify-center items-center gap-3 transition-all active:scale-95 text-white">
+                        <i data-lucide="play" class="w-6 h-6 fill-current"></i> เริ่มเล่นต่อเนื่อง
+                    </button>
+                </div>
+
+                <div class="glass-panel rounded-[2rem] p-8 flex flex-col items-center text-center group transition-all duration-300 mt-0 md:-mt-8">
+                    <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-fuchsia-500 to-pink-600 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(236,72,153,0.4)] transition-transform duration-300 -rotate-3">
+                        <i data-lucide="clock" class="w-12 h-12 text-white drop-shadow-lg"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold mb-3 neon-text-pink">คำถามจับเวลา</h2>
+                    <p class="text-indigo-200/70 mb-8 h-12">ทดสอบความรู้ แข่งกับเวลาที่นับถอยหลังอย่างกดดัน</p>
+                    <button onclick="startContinuousPlay('quiz')" class="w-full bg-gradient-to-r from-fuchsia-500 to-pink-600 py-4 rounded-2xl font-bold text-lg shadow-[0_0_20px_rgba(236,72,153,0.3)] flex justify-center items-center gap-3 transition-all active:scale-95 text-white">
+                        <i data-lucide="play" class="w-6 h-6 fill-current"></i> เริ่มเล่นต่อเนื่อง
+                    </button>
+                </div>
+
+                <div class="glass-panel rounded-[2rem] p-8 flex flex-col items-center text-center group transition-all duration-300">
+                    <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(251,191,36,0.4)] transition-transform duration-300 rotate-3">
+                        <i data-lucide="dices" class="w-12 h-12 text-white drop-shadow-lg"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold mb-3 neon-text-amber">วงล้อเสี่ยงดวง</h2>
+                    <p class="text-indigo-200/70 mb-8 h-12">สุ่มผู้โชคดี หรือสุ่มบทลงโทษสุดฮาประจำงานปาร์ตี้</p>
+                    <button onclick="startContinuousPlay('roulette')" class="w-full bg-gradient-to-r from-amber-500 to-orange-600 py-4 rounded-2xl font-bold text-lg shadow-[0_0_20px_rgba(251,191,36,0.3)] flex justify-center items-center gap-3 transition-all active:scale-95 text-white">
+                        <i data-lucide="play" class="w-6 h-6 fill-current"></i> เริ่มสุ่มอัตโนมัติ
+                    </button>
+                </div>
+            </div>
+
+            <button onclick="changeView('view-admin')" class="mt-16 flex items-center gap-3 bg-white/10 hover:bg-white/20 px-8 py-4 rounded-full font-bold text-indigo-300 hover:text-white transition-all border border-white/10 shadow-[0_0_15px_rgba(0,0,0,0.5)] hover:border-white/30 group">
+                <i data-lucide="settings" class="w-5 h-5 group-hover:rotate-90 transition-transform duration-500"></i>
+                จัดการระบบหลังบ้าน (Admin Panel)
             </button>
         </div>
-
-        <!-- TOP ROW: TITLE & ID -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="gdd-box md:col-span-1">
-                <div class="gdd-title">MUEA</div>
-                <div class="font-bold text-xl text-white">MUEA:คืนหลอนเมือกลับ</div>
-                <div class="text-xs text-gray-500 mt-1">Current working title</div>
-            </div>
-            <div class="gdd-box md:col-span-3">
-                <div class="gdd-title">ID (คำอธิบายสั้นประโยคเดียว)</div>
-                <div class="font-medium text-base text-gray-200 mt-1">
-                    เกมแนวสยองขวัญบริหารหมู่บ้านในอีสานยุค 90 ที่คุณต้องคัดกรองคนเข้า-ออกภายใต้ทรัพยากรจำกัด และแยกให้ออกว่าใครคือ "คน" ใครคือ "ผี" ก่อนที่ความกลัวจะกัดกินและทำให้ชาวบ้านฆ่ากันเอง
-                </div>
-            </div>
-        </div>
-
-        <!-- MAIN CONTENT: 3 COLUMNS -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            
-            <!-- LEFT COLUMN -->
-            <div class="space-y-4 flex flex-col">
-                <div class="gdd-box">
-                    <div class="gdd-title">THEME & GENRE</div>
-                    <ul class="list-disc list-inside text-gray-300 space-y-1">
-                        <li><strong>Theme:</strong> ความระแวงในสิ่งที่คุ้นเคย (Paranoia), จริยธรรมการเอาตัวรอด, ความเชื่อหมู่บ้านอีสาน</li>
-                        <li><strong>Genre:</strong> Horror Management / Social Deduction</li>
-                    </ul>
-                </div>
-
-                <div class="gdd-box">
-                    <div class="gdd-title">KEY PILLARS (เสาหลักของเกม)</div>
-                    <div class="flex flex-wrap gap-2 mt-2">
-                        <span class="bg-red-900/40 text-red-200 border border-red-800 px-2 py-1 rounded text-xs">กลัว (Fear)</span>
-                        <span class="bg-red-900/40 text-red-200 border border-red-800 px-2 py-1 rounded text-xs">ระแวง (Paranoia)</span>
-                        <span class="bg-red-900/40 text-red-200 border border-red-800 px-2 py-1 rounded text-xs">ไม่มั่นใจ (Uncertainty)</span>
-                        <span class="bg-red-900/40 text-red-200 border border-red-800 px-2 py-1 rounded text-xs">Snowball Effect</span>
-                    </div>
-                </div>
-
-                <div class="gdd-box">
-                    <div class="gdd-title">VISUAL STYLE</div>
-                    <p class="text-gray-300 mb-2">แนว Analog Horror ผสมกลิ่นอายชนบทไทยยุค 90</p>
-                    <ul class="list-disc list-inside text-gray-400 text-xs space-y-1">
-                        <li>ภาพสีซีดจางแบบฟิล์มเก่า (VHS filter)</li>
-                        <li>ความสยองแบบ Uncanny Valley (คนที่มีท่าทางผิดปกติกังวลเกินเหตุ)</li>
-                        <li>เมื่อค่า "ความเครียด" ในหมู่บ้านสูง โทนสีจะบิดเบี้ยว (Distorted) และมี Noise</li>
-                    </ul>
-                </div>
-
-                <div class="gdd-box flex-grow">
-                    <div class="gdd-title">MUSIC & SOUND STYLE</div>
-                    <ul class="list-disc list-inside text-gray-300 text-xs space-y-2">
-                        <li><strong>Soundscape:</strong> เสียงธรรมชาติ (จิ้งหรีด, ลม) ที่เงียบสงัดจนน่าอึดอัด แทรกด้วย Static Noise ตามค่าความเครียด</li>
-                        <li><strong>Music:</strong> เครื่องดนตรีอีสาน (ซอ, แคน) บรรเลงโน้ตแบบ Dissonant (เพี้ยน/หลอน) ผสม Drone bass ลึกๆ</li>
-                        <li><strong>No Jump Scares:</strong> เน้นเสียงบรรยากาศที่กดดัน ค่อยๆ คืบคลาน</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- CENTER COLUMN -->
-            <div class="space-y-4 flex flex-col">
-                <div class="gdd-box border-red-800/50">
-                    <div class="gdd-title text-red-500">MAIN AIM (เป้าหมายหลัก)</div>
-                    <p class="text-gray-200 font-medium text-center py-2">
-                        " บริหารหมู่บ้านให้รอดพ้นจากภัย 'ไข้ป่าแดง' และ 'ผี' ให้ครบ 30 วัน โดยรักษาจำนวนคนเป็นให้ได้มากที่สุด "
-                    </p>
-                </div>
-
-                <div class="gdd-box border-red-800/50">
-                    <div class="gdd-title text-red-500">MAIN MECH TO ACHIEVE AIM</div>
-                    <p class="text-gray-300 mb-2">การสืบสวนและตัดสินใจภายใต้ทรัพยากรที่จำกัด:</p>
-                    <ul class="list-disc list-inside text-gray-400 text-xs space-y-1">
-                        <li><strong>Action Points (AP):</strong> มีโควต้ากระทำเพียงวันละ 5 AP (รีเซ็ตทุกวัน)</li>
-                        <li><strong>เอกสาร & ซักประวัติ:</strong> เช็คข้อมูลคนในหมู่บ้าน และจับผิดจากคำพูด/ท่าทาง</li>
-                        <li><strong>ตัดสินใจ:</strong> เลือกว่าจะรับใครเข้า, ขับไล่ใครออก, หรือส่งใครไปหาเสบียงเสี่ยงตาย</li>
-                    </ul>
-                </div>
-
-                <div class="gdd-box bg-black text-center">
-                    <div class="gdd-title">CORE LOOP (วงจรเกมหลัก)</div>
-                    <div class="flex flex-col items-center justify-center space-y-2 mt-4 text-xs font-semibold text-gray-300">
-                        <div class="bg-gray-800 px-3 py-1 rounded border border-gray-600">1. รับข้อมูล (จากอำเภอ/ข่าวลือ)</div>
-                        <div class="core-loop-arrow">↓</div>
-                        <div class="bg-gray-800 px-3 py-1 rounded border border-red-900 text-red-200">2. บริหาร AP 5 แต้ม (ซักถาม/ส่งออก/ไล่)</div>
-                        <div class="core-loop-arrow">↓</div>
-                        <div class="bg-gray-800 px-3 py-1 rounded border border-gray-600">3. สรุปผลลัพธ์ (ความเครียด/ติดโรค/เสบียง)</div>
-                        <div class="core-loop-arrow">↓</div>
-                        <div class="bg-gray-800 px-3 py-1 rounded border border-gray-600">4. เผชิญเหตุการณ์กลางคืน (คนตาย/ศาลเตี้ย)</div>
-                        <div class="core-loop-arrow">↻ วนลูปสู่วันใหม่</div>
-                    </div>
-                </div>
-
-                <div class="gdd-box flex-grow">
-                    <div class="gdd-title">STORY (เนื้อเรื่อง)</div>
-                    <p class="text-gray-300 text-xs leading-relaxed">
-                        โรคระบาด "ไข้ป่าแดง" ซัดเข้าหมู่บ้านห่างไกล พร้อมๆ กับข่าวลือเรื่องผี (กองกอย) ที่ปลอมตัวเนียนเข้ามากับผู้ป่วย ผู้เล่นคือผู้มีอำนาจตัดสินใจประจำหมู่บ้าน<br><br>
-                        <strong>Dilemma:</strong> คุณต้องเผชิญกับทางเลือกที่บีบคั้น เช่น "ลุงชัยคนหาของเก่ง แต่ท่าทางแกเริ่มแปลกไป จะยอมรับเข้ามาเอาเสบียงและเสี่ยง หรือทิ้งลุงแกไว้ข้างนอกเพื่อเซฟคนใน?" หากตัดสินใจพลาด ความกลัวจะทำให้ชาวบ้านตั้งศาลเตี้ยล่าแม่มดกันเอง
-                    </p>
-                </div>
-            </div>
-
-            <!-- RIGHT COLUMN -->
-            <div class="space-y-4 flex flex-col">
-                
-                <!-- ENABLERS -->
-                <div class="gdd-box">
-                    <div class="gdd-title text-green-700">ENABLERS (ตัวช่วย)</div>
-                    <div class="mb-2">
-                        <span class="text-xs font-bold text-gray-400">ACTIVE (ผู้เล่นลงมือ)</span>
-                        <ul class="list-disc list-inside text-gray-300 text-xs pl-2">
-                            <li>ส่งคนออกไปสำรวจ/หาของ</li>
-                            <li>ขับไล่คนที่มีความเสี่ยงออกจากหมู่บ้าน</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <span class="text-xs font-bold text-gray-400">PASSIVE (มีให้ในเกม)</span>
-                        <ul class="list-disc list-inside text-gray-300 text-xs pl-2">
-                            <li>จดหมายรายงานจากอำเภอ (เบาะแสโรค)</li>
-                            <li>แผนที่ชี้เป้าบ้านแต่ละหลังในหมู่บ้าน</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- BLOCKERS -->
-                <div class="gdd-box">
-                    <div class="gdd-title text-red-700">BLOCKERS (อุปสรรค)</div>
-                    <div class="mb-2">
-                        <span class="text-xs font-bold text-gray-400">ACTIVE (สิ่งที่ขัดขวางจังๆ)</span>
-                        <ul class="list-disc list-inside text-gray-300 text-xs pl-2">
-                            <li>ผีที่ปลอมตัวเนียนขอเข้ามาในหมู่บ้าน</li>
-                            <li>ชาวบ้านที่เครียดจัดจนก่อเหตุ "ล่าแม่มด"</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <span class="text-xs font-bold text-gray-400">PASSIVE (อุปสรรคแฝง)</span>
-                        <ul class="list-disc list-inside text-gray-300 text-xs pl-2">
-                            <li>ข่าวลือซุบซิบ (อาจจริงหรือลวง)</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- WIN / LOSE -->
-                <div class="grid grid-cols-2 gap-2">
-                    <div class="gdd-box">
-                        <div class="gdd-title">WIN CONDITION</div>
-                        <ul class="list-disc list-inside text-gray-300 text-[11px]">
-                            <li>ผ่านพ้น 30 วัน</li>
-                            <li>Multi-ending: จบตามสัดส่วน (คน>ผี, ผี>คน, ฯลฯ)</li>
-                        </ul>
-                    </div>
-                    <div class="gdd-box">
-                        <div class="gdd-title">LOSE CONDITION</div>
-                        <ul class="list-disc list-inside text-gray-300 text-[11px]">
-                            <li>คนตาย/ติดเชื้อทั้งหมู่บ้าน</li>
-                            <li>โดนชาวบ้านขับไล่/ฆ่า</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="gdd-box flex-grow">
-                    <div class="gdd-title">FEATURES</div>
-                    <ul class="list-disc list-inside text-gray-300 text-xs space-y-1">
-                        <li><strong>ระบบ Stress-based Event:</strong> เสียงภาพเปลี่ยน และอีเวนต์สุ่มเลวร้ายขึ้นเมื่อเกจเครียดสูง</li>
-                        <li><strong>Branching Consequences:</strong> ทุกการโกหก หรือพลาดส่งผีเข้า จะฆ่า NPC และลดยอดแรงงาน</li>
-                        <li><strong>Uncanny Animations:</strong> ท่าทางกังวลของตัวละครที่เป็นเบาะแสสำคัญในการเล่น</li>
-                    </ul>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- BOTTOM ROW -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 pb-8">
-            <div class="gdd-box md:col-span-1">
-                <div class="gdd-title">AUDIENCE & PLATFORM</div>
-                <div class="text-xs text-gray-300 space-y-1 mt-1">
-                    <p><strong>Audience:</strong> แฟนเกมอินดี้สยองขวัญจิตวิทยา และสายบริหารทรัพยากร (Papers, Please, This War of Mine)</p>
-                    <p><strong>Platform:</strong> PC (Steam) / itch.io</p>
-                </div>
-            </div>
-            
-            <div class="gdd-box md:col-span-1">
-                <div class="gdd-title">Cosmo TEAM</div>
-                <div class="text-xs text-gray-300 mt-1">
-                    <p>นายกิตติศักดิ์ คนเกณฑ์</p>
-                    <p>ตำแหน่ง: Game Designer / Project Lead</p>
-                    <p>นางสาววรณิชากัญญาวีร์ พันชนะ</p>
-                    <p>ตำแหน่ง: 2D Artist / Animator</p>
-                    <p>นายพรรณกวี ราวกลาง</p>
-                    <p>ตำแหน่ง: Programmer / Sound Designer</p>
-                </div>
-            </div>
-
-            <div class="gdd-box md:col-span-2 border-green-800/50 bg-green-900/10">
-                <div class="gdd-title text-green-500">PERSONAL DEV GOAL (เป้าหมายส่วนตัว)</div>
-                <ul class="list-disc list-inside text-gray-300 text-sm mt-1">
-                    <li>สร้างประสบการณ์เกมสยองขวัญที่เน้น <strong>บรรยากาศจิตวิทยาและกดดัน</strong> โดยพึ่งพา Jump Scare ให้น้อยที่สุด</li>
-                    <li>ถ่ายทอดเสน่ห์ของ <strong>ตำนานท้องถิ่นอีสาน</strong> ออกมาในรูปแบบที่แปลกใหม่บนสื่อวิดีโอเกม</li>
-                    <li>เผยแผ่เกม <strong>ไปให้ผู้คนในสังคมทั้งในและนอกประเทศได้เห็น</strong> โดยได้โอกาสออกบูธ</li>
-                </ul>
-            </div>
-        </div>
-
     </div>
+
+    <div id="view-admin" class="view-section w-full max-w-6xl mx-auto">
+        <div class="flex w-full justify-between items-center mb-10 max-w-5xl mx-auto">
+            <button onclick="changeView('view-lobby')" class="group flex items-center gap-2 bg-white/10 hover:bg-white/20 px-5 py-3 rounded-2xl border border-white/10 transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                <i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold tracking-wider">LOBBY</span>
+            </button>
+            <h1 class="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-200 to-white uppercase tracking-widest text-center flex-1">
+                SYSTEM SETUP
+            </h1>
+            <div class="w-[100px]"></div>
+        </div>
+
+        <div class="w-full max-w-5xl mx-auto glass-panel p-8 rounded-3xl relative z-10" style="background: rgba(20, 15, 40, 0.95);">
+            <div class="flex space-x-2 border-b border-white/10 pb-4 mb-8 overflow-x-auto hide-scrollbar">
+                <button onclick="switchAdminTab('picture')" id="tab-picture" class="admin-tab-btn flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.5)]">
+                    <i data-lucide="image" class="w-4 h-4"></i> เปิดป้ายทายภาพ
+                </button>
+                <button onclick="switchAdminTab('quiz')" id="tab-quiz" class="admin-tab-btn flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap text-indigo-300 hover:bg-white/5">
+                    <i data-lucide="clock" class="w-4 h-4"></i> คำถามจับเวลา
+                </button>
+                <button onclick="switchAdminTab('roulette')" id="tab-roulette" class="admin-tab-btn flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap text-indigo-300 hover:bg-white/5">
+                    <i data-lucide="dices" class="w-4 h-4"></i> วงล้อเสี่ยงดวง
+                </button>
+            </div>
+            <div id="admin-content-picture" class="admin-content-section space-y-6"></div>
+            <div id="admin-content-quiz" class="admin-content-section space-y-6 hidden"></div>
+            <div id="admin-content-roulette" class="admin-content-section space-y-6 hidden"></div>
+        </div>
+    </div>
+
+    <div id="view-picture" class="view-section w-full max-w-6xl mx-auto">
+        <div class="flex w-full justify-between items-center mb-10">
+            <button onclick="changeView('view-lobby')" class="group flex items-center gap-2 bg-white/10 hover:bg-white/20 px-5 py-3 rounded-2xl border border-white/10 transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                <i data-lucide="home" class="w-5 h-5"></i>
+            </button>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-200 to-white uppercase tracking-widest text-center flex-1">
+                PICTURE REVEAL
+            </h1>
+            <div class="w-[80px]"></div>
+        </div>
+
+        <div class="flex flex-col items-center w-full">
+            <h2 id="picture-title" class="text-3xl font-bold mb-8 text-cyan-300 drop-shadow-[0_0_10px_rgba(103,232,249,0.8)]">Title</h2>
+            
+            <div class="relative rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(56,189,248,0.3)] border-[3px] border-cyan-500/30 w-full max-w-4xl">
+                <img id="picture-image" src="" alt="Game" class="w-full h-auto object-cover block" style="min-height: 400px; max-height: 65vh;">
+                <div id="picture-grid-container" class="picture-grid">
+                </div>
+            </div>
+
+            <div class="mt-12 flex gap-6">
+                <button onclick="revealAllPictures()" class="px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 font-bold transition-all text-white flex items-center gap-2 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                    <i data-lucide="zap" class="w-5 h-5 text-yellow-400"></i> เฉลยทั้งหมด
+                </button>
+                <button onclick="nextPlayItem()" class="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold transition-all shadow-[0_0_20px_rgba(56,189,248,0.4)] flex items-center gap-2 active:scale-95">
+                    ข้อต่อไป <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-quiz" class="view-section w-full max-w-6xl mx-auto">
+        <div class="flex w-full justify-between items-center mb-10">
+            <button onclick="changeView('view-lobby')" class="group flex items-center gap-2 bg-white/10 hover:bg-white/20 px-5 py-3 rounded-2xl border border-white/10 transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                <i data-lucide="home" class="w-5 h-5"></i>
+            </button>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-200 to-white uppercase tracking-widest text-center flex-1">
+                TIME QUIZ
+            </h1>
+            <div class="w-[80px]"></div>
+        </div>
+
+        <div class="max-w-4xl mx-auto w-full flex flex-col items-center">
+            <div class="w-full mb-8 relative">
+                <div class="flex justify-between mb-2 px-2 text-lg font-bold text-indigo-200">
+                    <span>เวลาเหลือ</span>
+                    <span id="quiz-time-text" class="text-2xl text-fuchsia-400">0 วินาที</span>
+                </div>
+                <div class="w-full h-4 bg-white/10 rounded-full overflow-hidden border border-white/5 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]">
+                    <div id="quiz-time-bar" class="h-full transition-all duration-1000 ease-linear rounded-full bg-gradient-to-r from-fuchsia-500 to-pink-500 shadow-[0_0_15px_rgba(236,72,153,0.8)]" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <div class="glass-panel w-full p-10 rounded-[2rem] text-center mb-8 border-t border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-fuchsia-500 to-transparent opacity-50"></div>
+                <h2 id="quiz-question-text" class="text-3xl md:text-5xl font-bold leading-tight text-white mb-4 drop-shadow-lg">Question</h2>
+            </div>
+
+            <div id="quiz-options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+            </div>
+
+            <div id="quiz-actions-container" class="mt-12">
+            </div>
+        </div>
+    </div>
+
+    <div id="view-roulette" class="view-section w-full max-w-6xl mx-auto">
+        <div class="flex w-full justify-between items-center mb-10">
+            <button onclick="changeView('view-lobby')" class="group flex items-center gap-2 bg-white/10 hover:bg-white/20 px-5 py-3 rounded-2xl border border-white/10 transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                <i data-lucide="home" class="w-5 h-5"></i>
+            </button>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-200 to-white uppercase tracking-widest text-center flex-1">
+                ROULETTE SPINNER
+            </h1>
+            <div class="w-[80px]"></div>
+        </div>
+
+        <div class="flex flex-col items-center justify-center flex-1 w-full min-h-[50vh]">
+            <div id="roulette-box" class="relative w-full max-w-3xl glass-panel border-2 rounded-[3rem] p-16 flex items-center justify-center text-center min-h-[300px] mb-12 transition-all duration-500 border-white/10">
+                <h2 id="roulette-text" class="text-4xl md:text-6xl font-black leading-tight text-amber-100/90">
+                    กดปุ่มเพื่อเริ่มสุ่ม
+                </h2>
+            </div>
+
+            <div class="flex flex-col items-center gap-6">
+                <button id="roulette-btn" onclick="spinRoulette()" class="relative overflow-hidden group px-16 py-6 rounded-full font-black text-3xl transition-all duration-300 uppercase tracking-widest text-white bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:scale-110 hover:shadow-[0_0_40px_rgba(249,115,22,0.8)] active:scale-95">
+                    <span class="relative flex items-center gap-3">
+                        <i data-lucide="flame" id="roulette-icon" class="animate-bounce"></i> 
+                        <span id="roulette-btn-text">SPIN</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-score" class="view-section w-full max-w-6xl mx-auto">
+        <div class="flex flex-col items-center justify-center min-h-[80vh] text-center w-full">
+            <div class="relative mb-8">
+                <div class="absolute inset-0 bg-yellow-500 blur-[60px] opacity-30 rounded-full animate-pulse-glow"></div>
+                <i data-lucide="trophy" class="w-32 h-32 text-yellow-400 relative z-10 drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"></i>
+            </div>
+            <h2 class="text-5xl font-black mb-6 text-white tracking-widest uppercase">สรุปคะแนนของคุณ</h2>
+            <div class="glass-panel px-12 py-8 rounded-3xl mb-12">
+                <p class="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-yellow-300 to-amber-600">
+                    <span id="score-earned">0</span> <span class="text-4xl text-white/50">/ <span id="score-total">0</span></span>
+                </p>
+            </div>
+            <button onclick="changeView('view-lobby')" class="px-10 py-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full font-bold text-xl transition-all flex items-center gap-3 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                <i data-lucide="home"></i> กลับหน้าหลัก
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const inputClass = "w-full bg-[#0a0f25] border border-indigo-500/30 rounded-xl p-3 text-white focus:outline-none focus:border-indigo-400 focus:shadow-[0_0_10px_rgba(99,102,241,0.5)] transition-all";
+        const labelClass = "block text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2 mt-4";
+        const btnDangerClass = "bg-rose-500/10 text-rose-400 p-2 rounded-lg hover:bg-rose-500 hover:text-white transition-colors border border-rose-500/30";
+
+        let pictures = [
+            { id: 1, title: 'สัตว์ปริศนา', url: 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', cols: 4, rows: 3 },
+            { id: 2, title: 'สถานที่ท่องเที่ยว', url: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', cols: 3, rows: 3 }
+        ];
+
+        let quizzes = [
+            { id: 1, question: 'สัญลักษณ์ของธาตุทองคำ (Gold) ในตารางธาตุคืออะไร?', options: ['Ag', 'Au', 'Gd', 'Go'], answer: 1, timeLimit: 15 },
+            { id: 2, question: 'ภาพยนตร์เรื่องใดทำรายได้สูงที่สุดในโลก (อัปเดตปี 2023)?', options: ['Avatar', 'Avengers: Endgame', 'Titanic', 'Star Wars'], answer: 0, timeLimit: 20 }
+        ];
+
+        let rouletteItems = [
+            { id: 1, text: 'เต้นเพลงฮิต 15 วินาที!' },
+            { id: 2, text: 'รับของรางวัลชิ้นใหญ่!' },
+            { id: 3, text: 'ดื่มน้ำ 1 แก้วเต็มๆ' },
+            { id: 4, text: 'พูดชมคนข้างๆ 3 ประโยค' },
+            { id: 5, text: 'ได้สิทธิ์ข้ามคำถาม 1 ครั้ง' }
+        ];
+
+        let currentMode = 'lobby';
+        let playQueue = [];
+        let currentPlayIndex = 0;
+        let score = 0;
+        let adminTab = 'picture';
+        let quizTimerInterval = null;
+        let quizTimeLeft = 0;
+        let quizShowAnswer = false;
+        let isSpinning = false;
+
+        lucide.createIcons();
+        loadFromStorage();
+        renderAdminContent();
+
+        function changeView(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            currentMode = viewId.replace('view-', '');
+            if (quizTimerInterval) clearInterval(quizTimerInterval);
+            if (currentMode === 'admin') renderAdminContent();
+            else if (currentMode === 'score') {
+                document.getElementById('score-earned').innerText = score;
+                document.getElementById('score-total').innerText = playQueue.length;
+            }
+            lucide.createIcons();
+        }
+
+        function shuffleArray(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function startContinuousPlay(targetMode) {
+            let queue = [];
+            if (targetMode === 'picture') queue = shuffleArray(pictures);
+            else if (targetMode === 'quiz') queue = shuffleArray(quizzes);
+            else if (targetMode === 'roulette') {
+                changeView('view-roulette');
+                resetRouletteUI();
+                return;
+            }
+            if (queue.length === 0) return alert("ไม่มีข้อมูล");
+            playQueue = queue;
+            currentPlayIndex = 0;
+            score = 0;
+            if (targetMode === 'picture') { loadPictureItem(); changeView('view-picture'); }
+            else if (targetMode === 'quiz') { loadQuizItem(); changeView('view-quiz'); }
+        }
+
+        function nextPlayItem() {
+            if (currentPlayIndex + 1 < playQueue.length) {
+                currentPlayIndex++;
+                if (currentMode === 'picture') loadPictureItem();
+                else if (currentMode === 'quiz') loadQuizItem();
+            } else {
+                changeView(currentMode === 'quiz' ? 'view-score' : 'view-lobby');
+            }
+        }
+
+        function loadPictureItem() {
+            const item = playQueue[currentPlayIndex];
+            document.getElementById('picture-title').innerText = item.title;
+            document.getElementById('picture-image').src = item.url;
+            const gridContainer = document.getElementById('picture-grid-container');
+            gridContainer.style.gridTemplateColumns = `repeat(${item.cols}, 1fr)`;
+            gridContainer.style.gridTemplateRows = `repeat(${item.rows}, 1fr)`;
+            let gridHtml = '';
+            for (let i = 0; i < item.cols * item.rows; i++) {
+                gridHtml += `<div id="pic-panel-${i}" onclick="togglePicturePanel(${i})" class="picture-panel"><span class="text-4xl font-black">${i + 1}</span></div>`;
+            }
+            gridContainer.innerHTML = gridHtml;
+        }
+
+        function togglePicturePanel(index) { 
+            document.getElementById(`pic-panel-${index}`).classList.add('revealed'); 
+        }
+        function revealAllPictures() { 
+            document.querySelectorAll('.picture-panel:not(.revealed)').forEach(p => p.classList.add('revealed')); 
+        }
+
+        function loadQuizItem() {
+            if (quizTimerInterval) clearInterval(quizTimerInterval);
+            const item = playQueue[currentPlayIndex];
+            quizTimeLeft = item.timeLimit;
+            quizShowAnswer = false;
+            document.getElementById('quiz-question-text').innerText = item.question;
+            renderQuizOptions();
+            document.getElementById('quiz-actions-container').innerHTML = `<button onclick="forceRevealQuiz()" class="text-indigo-400 font-bold uppercase">เฉลย</button>`;
+            quizTimerInterval = setInterval(() => {
+                quizTimeLeft--;
+                if (quizTimeLeft <= 0) { clearInterval(quizTimerInterval); forceRevealQuiz(); }
+                updateQuizTimerUI(item.timeLimit);
+            }, 1000);
+            updateQuizTimerUI(item.timeLimit);
+            lucide.createIcons();
+        }
+
+        function updateQuizTimerUI(maxTime) {
+            document.getElementById('quiz-time-text').innerText = `${quizTimeLeft} วินาที`;
+            document.getElementById('quiz-time-bar').style.width = `${(quizTimeLeft / maxTime) * 100}%`;
+        }
+
+        function renderQuizOptions(selectedIndex = -1) {
+            const item = playQueue[currentPlayIndex];
+            const container = document.getElementById('quiz-options-container');
+            let html = '';
+            item.options.forEach((opt, idx) => {
+                let status = quizShowAnswer ? (idx === item.answer ? "border-emerald-500 bg-emerald-500/20" : "opacity-50") : "border-fuchsia-400";
+                html += `<button onclick="selectQuizOption(${idx})" ${quizShowAnswer?'disabled':''} class="p-6 rounded-2xl border-2 ${status}">${opt}</button>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function selectQuizOption(index) {
+            if (quizShowAnswer) return;
+            const item = playQueue[currentPlayIndex];
+            clearInterval(quizTimerInterval);
+            quizShowAnswer = true;
+            if (index === item.answer) score++;
+            renderQuizOptions(index);
+            showNextQuizButton();
+        }
+
+        function forceRevealQuiz() { if (quizShowAnswer) return; clearInterval(quizTimerInterval); quizShowAnswer = true; renderQuizOptions(); showNextQuizButton(); }
+        function showNextQuizButton() {
+            document.getElementById('quiz-actions-container').innerHTML = `<button onclick="nextPlayItem()" class="px-10 py-5 rounded-2xl bg-fuchsia-600 text-white font-bold">ต่อไป</button>`;
+        }
+
+        function resetRouletteUI() { document.getElementById('roulette-text').innerText = "กด SPIN"; }
+
+        function spinRoulette() {
+            if (isSpinning) return;
+            isSpinning = true;
+            let ticks = 0;
+            const timer = setInterval(() => {
+                document.getElementById('roulette-text').innerText = rouletteItems[Math.floor(Math.random()*rouletteItems.length)].text;
+                if (++ticks > 20) { clearInterval(timer); isSpinning = false; }
+            }, 100);
+        }
+
+        function switchAdminTab(tabName) {
+            adminTab = tabName;
+            document.querySelectorAll('.admin-content-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`admin-content-${tabName}`).classList.remove('hidden');
+            renderAdminContent();
+        }
+
+        function renderAdminContent() {
+            if (adminTab === 'picture') renderPictureAdmin();
+            else if (adminTab === 'quiz') renderQuizAdmin();
+            else renderRouletteAdmin();
+            lucide.createIcons();
+        }
+
+        function renderPictureAdmin() {
+            let html = '';
+            html += `<div class="flex items-center gap-3 mb-4"><button onclick="addPicture()" class="px-4 py-2 bg-cyan-500 rounded text-white font-bold">+ เพิ่มรูป</button><button onclick="saveAllToStorage()" class="px-4 py-2 bg-indigo-600 rounded text-white font-bold">บันทึก</button></div>`;
+            pictures.forEach((p, i) => {
+                html += `<div class="bg-white/5 p-4 rounded-xl flex items-center justify-between gap-4"><div class="flex-1"><h3 class=\"mb-2\">รูปภาพ ${i+1}</h3><label class=\"${labelClass}\">Title</label><input type=\"text\" value=\"${p.title}\" class=\"${inputClass}\" onchange=\"updateData('picture', ${p.id}, 'title', this.value)\"><label class=\"${labelClass}\">URL</label><input type=\"text\" value=\"${p.url}\" class=\"${inputClass}\" onchange=\"updateData('picture', ${p.id}, 'url', this.value)\"><div class=\"grid grid-cols-2 gap-2 mt-2\"><div><label class=\"${labelClass}\">Cols</label><input type=\"number\" value=\"${p.cols}\" class=\"${inputClass}\" onchange=\"updateData('picture', ${p.id}, 'cols', parseInt(this.value)||1)\"></div><div><label class=\"${labelClass}\">Rows</label><input type=\"number\" value=\"${p.rows}\" class=\"${inputClass}\" onchange=\"updateData('picture', ${p.id}, 'rows', parseInt(this.value)||1)\"></div></div></div><div class=\"ml-4\"><button onclick=\"deleteItem('picture', ${p.id})\" class=\"${btnDangerClass}\">ลบ</button></div></div>`;
+            });
+            document.getElementById('admin-content-picture').innerHTML = html;
+        }
+
+        function renderQuizAdmin() {
+            let html = '';
+            html += `<div class="flex items-center gap-3 mb-4"><button onclick="addQuiz()" class="px-4 py-2 bg-fuchsia-500 rounded text-white font-bold">+ เพิ่มคำถาม</button><button onclick="saveAllToStorage()" class="px-4 py-2 bg-indigo-600 rounded text-white font-bold">บันทึก</button></div>`;
+            quizzes.forEach((q, i) => {
+                const opts = q.options ? q.options.join('|') : '';
+                html += `<div class="bg-white/5 p-4 rounded-xl flex items-center justify-between gap-4"><div class="flex-1"><h3 class=\"mb-2\">คำถาม ${i+1}</h3><label class=\"${labelClass}\">Question</label><input type=\"text\" value=\"${q.question}\" class=\"${inputClass}\" onchange=\"updateData('quiz', ${q.id}, 'question', this.value)\"><label class=\"${labelClass}\">Options (| separated)</label><input type=\"text\" value=\"${opts}\" class=\"${inputClass}\" onchange=\"updateData('quiz', ${q.id}, 'options', this.value.split('|').map(s=>s.trim()))\"><label class=\"${labelClass}\">Answer index</label><input type=\"number\" value=\"${q.answer}\" class=\"${inputClass}\" onchange=\"updateData('quiz', ${q.id}, 'answer', parseInt(this.value)||0)\"><label class=\"${labelClass}\">TimeLimit (s)</label><input type=\"number\" value=\"${q.timeLimit}\" class=\"${inputClass}\" onchange=\"updateData('quiz', ${q.id}, 'timeLimit', parseInt(this.value)||15)\"></div><div class=\"ml-4\"><button onclick=\"deleteItem('quiz', ${q.id})\" class=\"${btnDangerClass}\">ลบ</button></div></div>`;
+            });
+            document.getElementById('admin-content-quiz').innerHTML = html;
+        }
+
+        function renderRouletteAdmin() {
+            let html = '';
+            rouletteItems.forEach((r, i) => {
+                html += `<div class="bg-white/5 p-4 rounded-xl flex items-center justify-between gap-4"><div class="flex-1"><h3 class=\"mb-2\">รายการ ${i+1}</h3><input type=\"text\" value=\"${r.text}\" class=\"${inputClass}\" onchange=\"updateData('roulette', ${r.id}, 'text', this.value)\"></div><div class=\"ml-4\"><button onclick=\"deleteItem('roulette', ${r.id})\" class=\"${btnDangerClass}\">ลบ</button></div></div>`;
+            });
+            document.getElementById('admin-content-roulette').innerHTML = html;
+        }
+
+        function updateData(type, id, field, val) {
+            let list = type === 'picture' ? pictures : (type === 'quiz' ? quizzes : rouletteItems);
+            let item = list.find(x => x.id === id);
+            if (item) item[field] = val;
+        }
+
+        // --- Persistence and add/delete helpers ---
+        function saveAllToStorage() {
+            try {
+                localStorage.setItem('game_pictures', JSON.stringify(pictures));
+                localStorage.setItem('game_quizzes', JSON.stringify(quizzes));
+                localStorage.setItem('game_roulette', JSON.stringify(rouletteItems));
+                alert('บันทึกเรียบร้อย');
+            } catch (e) { console.error(e); alert('บันทึกไม่สำเร็จ'); }
+        }
+
+        function loadFromStorage() {
+            try {
+                const p = JSON.parse(localStorage.getItem('game_pictures') || 'null');
+                const q = JSON.parse(localStorage.getItem('game_quizzes') || 'null');
+                const r = JSON.parse(localStorage.getItem('game_roulette') || 'null');
+                if (Array.isArray(p)) pictures = p;
+                if (Array.isArray(q)) quizzes = q;
+                if (Array.isArray(r)) rouletteItems = r;
+            } catch (e) { console.error('loadFromStorage error', e); }
+        }
+
+        function getNextId(list) { return list.reduce((max, it) => Math.max(max, it.id || 0), 0) + 1; }
+
+        function deleteItem(type, id) {
+            if (!confirm('ลบรายการนี้หรือไม่?')) return;
+            if (type === 'picture') pictures = pictures.filter(p => p.id !== id);
+            else if (type === 'quiz') quizzes = quizzes.filter(q => q.id !== id);
+            else rouletteItems = rouletteItems.filter(r => r.id !== id);
+            saveAllToStorage();
+            renderAdminContent();
+        }
+
+        function addPicture() {
+            const title = prompt('ชื่อภาพ (title)');
+            if (!title) return;
+            const url = prompt('URL รูปภาพ');
+            if (!url) return;
+            const cols = parseInt(prompt('จำนวนคอลัมน์ (cols)', '4')) || 4;
+            const rows = parseInt(prompt('จำนวนแถว (rows)', '3')) || 3;
+            const id = getNextId(pictures);
+            pictures.push({ id, title, url, cols, rows });
+            saveAllToStorage();
+            renderAdminContent();
+        }
+
+        function addQuiz() {
+            const question = prompt('คำถาม');
+            if (!question) return;
+            const opts = prompt('ตัวเลือก คั่นด้วย | (เช่น A|B|C|D)');
+            if (!opts) return;
+            const options = opts.split('|').map(s => s.trim()).filter(Boolean);
+            const answerIdx = parseInt(prompt('ดัชนีคำตอบ (เริ่มจาก 0)', '0')) || 0;
+            const timeLimit = parseInt(prompt('เวลา (วินาที)', '15')) || 15;
+            const id = getNextId(quizzes);
+            quizzes.push({ id, question, options, answer: answerIdx, timeLimit });
+            saveAllToStorage();
+            renderAdminContent();
+        }
+
+        function addRoulette() {
+            const text = prompt('ข้อความวงล้อ');
+            if (!text) return;
+            const id = getNextId(rouletteItems);
+            rouletteItems.push({ id, text });
+            saveAllToStorage();
+            renderAdminContent();
+        }
+
+        // Update updateData to persist immediately
+        const _oldUpdateData = updateData;
+        updateData = function(type, id, field, val) {
+            _oldUpdateData(type, id, field, val);
+            saveAllToStorage();
+            // re-render admin so changes reflect (keeps focus simple)
+            renderAdminContent();
+        }
+    </script>
 </body>
 </html>
