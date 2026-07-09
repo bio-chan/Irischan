@@ -95,7 +95,7 @@
             <div class="mb-16 text-center animate-pulse-glow relative">
                 <i data-lucide="sparkles" class="absolute -top-6 -left-8 text-pink-400 w-10 h-10 animate-spin-slow"></i>
                 <h1 class="text-6xl md:text-8xl font-black mb-4 tracking-tighter uppercase">
-                    <span class="text-transparent bg-clip-text bg-gradient-to-br from-cyan-300 via-indigo-400 to-fuchsia-400">SUT E Sport</span>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-br from-cyan-300 via-indigo-400 to-fuchsia-400">Neon</span>
                     <span class="text-white"> Party</span>
                 </h1>
                 <p class="text-xl md:text-2xl text-indigo-200 font-light tracking-widest uppercase opacity-80">SUTSportEventGame</p>
@@ -197,6 +197,10 @@
                 </div>
             </div>
 
+            <!-- เพิ่มกล่องแสดงเฉลยสำหรับเปิดป้ายทายภาพ -->
+            <div id="picture-explanation-container" class="mt-6 p-6 rounded-2xl bg-cyan-900/40 border border-cyan-500/30 shadow-lg text-center w-full max-w-4xl hidden transition-all duration-500">
+            </div>
+
             <div class="mt-12 flex gap-6">
                 <button onclick="revealAllPictures()" class="px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 font-bold transition-all text-white flex items-center gap-2 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
                     <i data-lucide="zap" class="w-5 h-5 text-yellow-400"></i> เฉลยทั้งหมด
@@ -238,7 +242,11 @@
             <div id="quiz-options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             </div>
 
-            <div id="quiz-actions-container" class="mt-12">
+            <!-- กล่องแสดงเฉลยและคำอธิบาย -->
+            <div id="quiz-explanation-container" class="mt-6 p-6 rounded-2xl bg-white/10 border border-white/20 shadow-lg text-center w-full hidden transition-all duration-500">
+            </div>
+
+            <div id="quiz-actions-container" class="mt-10">
             </div>
         </div>
     </div>
@@ -296,13 +304,13 @@
         const btnDangerClass = "bg-rose-500/10 text-rose-400 p-2 rounded-lg hover:bg-rose-500 hover:text-white transition-colors border border-rose-500/30";
 
         let pictures = [
-            { id: 1, title: 'สัตว์ปริศนา', url: 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', cols: 4, rows: 3 },
-            { id: 2, title: 'สถานที่ท่องเที่ยว', url: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', cols: 3, rows: 3 }
+            { id: 1, title: 'สัตว์ปริศนา', url: 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', cols: 4, rows: 3, explanation: 'กิ้งก่าคาเมเลี่ยน (Chameleon) มีความสามารถพิเศษในการเปลี่ยนสีผิวเพื่อพรางตัวและสื่อสาร' },
+            { id: 2, title: 'สถานที่ท่องเที่ยว', url: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', cols: 3, rows: 3, explanation: 'หอไอเฟล (Eiffel Tower) สัญลักษณ์อันโดดเด่นของกรุงปารีส ประเทศฝรั่งเศส' }
         ];
 
         let quizzes = [
-            { id: 1, question: 'สัญลักษณ์ของธาตุทองคำ (Gold) ในตารางธาตุคืออะไร?', options: ['Ag', 'Au', 'Gd', 'Go'], answer: 1, timeLimit: 15 },
-            { id: 2, question: 'ภาพยนตร์เรื่องใดทำรายได้สูงที่สุดในโลก (อัปเดตปี 2023)?', options: ['Avatar', 'Avengers: Endgame', 'Titanic', 'Star Wars'], answer: 0, timeLimit: 20 }
+            { id: 1, question: 'สัญลักษณ์ของธาตุทองคำ (Gold) ในตารางธาตุคืออะไร?', options: ['Ag', 'Au', 'Gd', 'Go'], answer: 1, timeLimit: 15, explanation: 'Au มาจากภาษาละตินคำว่า Aurum (ออรัม) แปลว่า รุ่งอรุณที่ส่องสว่าง' },
+            { id: 2, question: 'ภาพยนตร์เรื่องใดทำรายได้สูงที่สุดในโลก (อัปเดตปี 2023)?', options: ['Avatar', 'Avengers: Endgame', 'Titanic', 'Star Wars'], answer: 0, timeLimit: 20, explanation: 'Avatar (2009) กลับมาทวงบัลลังก์อันดับ 1 หลังจากมีการนำกลับมาฉายใหม่ในโรงภาพยนตร์' }
         ];
 
         let rouletteItems = [
@@ -380,6 +388,10 @@
             const item = playQueue[currentPlayIndex];
             document.getElementById('picture-title').innerText = item.title;
             document.getElementById('picture-image').src = item.url;
+            
+            // ซ่อนกล่องเฉลยตอนโหลดภาพใหม่
+            document.getElementById('picture-explanation-container').classList.add('hidden');
+            
             const gridContainer = document.getElementById('picture-grid-container');
             gridContainer.style.gridTemplateColumns = `repeat(${item.cols}, 1fr)`;
             gridContainer.style.gridTemplateRows = `repeat(${item.rows}, 1fr)`;
@@ -395,6 +407,14 @@
         }
         function revealAllPictures() { 
             document.querySelectorAll('.picture-panel:not(.revealed)').forEach(p => p.classList.add('revealed')); 
+            
+            // แสดงเฉลยถ้ามีการตั้งค่าไว้
+            const item = playQueue[currentPlayIndex];
+            const expContainer = document.getElementById('picture-explanation-container');
+            if (item.explanation) {
+                expContainer.innerHTML = `<h3 class="text-2xl font-black text-cyan-400 mb-2 drop-shadow-md">เฉลย:</h3><p class="text-indigo-100 text-lg bg-black/30 p-4 rounded-xl shadow-inner">${item.explanation}</p>`;
+                expContainer.classList.remove('hidden');
+            }
         }
 
         function loadQuizItem() {
@@ -403,11 +423,18 @@
             quizTimeLeft = item.timeLimit;
             quizShowAnswer = false;
             document.getElementById('quiz-question-text').innerText = item.question;
-            renderQuizOptions();
-            document.getElementById('quiz-actions-container').innerHTML = `<button onclick="forceRevealQuiz()" class="text-indigo-400 font-bold uppercase">เฉลย</button>`;
+            
+            document.getElementById('quiz-explanation-container').classList.add('hidden');
+            renderQuizOptions(-1);
+            
+            document.getElementById('quiz-actions-container').innerHTML = `<button onclick="forceRevealQuiz()" class="text-indigo-400 font-bold uppercase hover:text-white transition-colors tracking-widest bg-white/5 px-6 py-2 rounded-full border border-white/10 hover:bg-white/10">เฉลยทันที</button>`;
+            
             quizTimerInterval = setInterval(() => {
                 quizTimeLeft--;
-                if (quizTimeLeft <= 0) { clearInterval(quizTimerInterval); forceRevealQuiz(); }
+                if (quizTimeLeft <= 0) { 
+                    clearInterval(quizTimerInterval); 
+                    forceRevealQuiz(); 
+                }
                 updateQuizTimerUI(item.timeLimit);
             }, 1000);
             updateQuizTimerUI(item.timeLimit);
@@ -416,18 +443,63 @@
 
         function updateQuizTimerUI(maxTime) {
             document.getElementById('quiz-time-text').innerText = `${quizTimeLeft} วินาที`;
-            document.getElementById('quiz-time-bar').style.width = `${(quizTimeLeft / maxTime) * 100}%`;
+            document.getElementById('quiz-time-bar').style.width = `${(Math.max(0, quizTimeLeft) / maxTime) * 100}%`;
+            
+            if (quizTimeLeft <= 5) {
+                document.getElementById('quiz-time-text').classList.replace('text-fuchsia-400', 'text-rose-500');
+                document.getElementById('quiz-time-text').classList.add('animate-pulse');
+                document.getElementById('quiz-time-bar').classList.replace('from-fuchsia-500', 'from-rose-500');
+                document.getElementById('quiz-time-bar').classList.replace('to-pink-500', 'to-red-500');
+            } else {
+                document.getElementById('quiz-time-text').classList.replace('text-rose-500', 'text-fuchsia-400');
+                document.getElementById('quiz-time-text').classList.remove('animate-pulse');
+                document.getElementById('quiz-time-bar').classList.replace('from-rose-500', 'from-fuchsia-500');
+                document.getElementById('quiz-time-bar').classList.replace('to-red-500', 'to-pink-500');
+            }
         }
 
         function renderQuizOptions(selectedIndex = -1) {
             const item = playQueue[currentPlayIndex];
             const container = document.getElementById('quiz-options-container');
             let html = '';
+            
             item.options.forEach((opt, idx) => {
-                let status = quizShowAnswer ? (idx === item.answer ? "border-emerald-500 bg-emerald-500/20" : "opacity-50") : "border-fuchsia-400";
-                html += `<button onclick="selectQuizOption(${idx})" ${quizShowAnswer?'disabled':''} class="p-6 rounded-2xl border-2 ${status}">${opt}</button>`;
+                let status = "border-fuchsia-500/50 hover:bg-fuchsia-500/20 bg-white/5 text-white/90";
+                if (quizShowAnswer) {
+                    if (idx === item.answer) {
+                        // ข้อที่ถูกต้อง
+                        status = "border-emerald-500 bg-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.5)] text-white font-bold scale-[1.02]";
+                    } else if (idx === selectedIndex) {
+                        // ข้อที่ผู้เล่นเลือกแต่ตอบผิด
+                        status = "border-rose-500 bg-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.5)] text-white font-bold scale-[0.98]";
+                    } else {
+                        // ข้ออื่นๆ
+                        status = "opacity-40 border-white/10 bg-black/20";
+                    }
+                }
+                html += `<button onclick="selectQuizOption(${idx})" ${quizShowAnswer?'disabled':''} class="p-5 md:p-6 rounded-2xl border-2 transition-all duration-300 text-lg md:text-xl font-semibold ${status}">${opt}</button>`;
             });
             container.innerHTML = html;
+
+            // จัดการกล่องแสดงผลลัพธ์และคำอธิบาย
+            const expContainer = document.getElementById('quiz-explanation-container');
+            if (quizShowAnswer) {
+                let resultTitle = "";
+                if (selectedIndex === -1) {
+                    resultTitle = '<span class="text-amber-400 drop-shadow-md">⏰ หมดเวลา!</span>';
+                } else if (selectedIndex === item.answer) {
+                    resultTitle = '<span class="text-emerald-400 drop-shadow-md">🎉 ถูกต้อง! เก่งมาก</span>';
+                } else {
+                    resultTitle = '<span class="text-rose-400 drop-shadow-md">❌ ผิดพลาด! ลองใหม่นะ</span>';
+                }
+
+                let explanationText = item.explanation ? `<p class="mt-4 text-indigo-100 text-lg bg-black/30 p-4 rounded-xl shadow-inner">${item.explanation}</p>` : '';
+                
+                expContainer.innerHTML = `<h3 class="text-3xl font-black mb-2">${resultTitle}</h3>${explanationText}`;
+                expContainer.classList.remove('hidden');
+            } else {
+                expContainer.classList.add('hidden');
+            }
         }
 
         function selectQuizOption(index) {
@@ -436,13 +508,26 @@
             clearInterval(quizTimerInterval);
             quizShowAnswer = true;
             if (index === item.answer) score++;
+            
             renderQuizOptions(index);
             showNextQuizButton();
         }
 
-        function forceRevealQuiz() { if (quizShowAnswer) return; clearInterval(quizTimerInterval); quizShowAnswer = true; renderQuizOptions(); showNextQuizButton(); }
+        function forceRevealQuiz() { 
+            if (quizShowAnswer) return; 
+            clearInterval(quizTimerInterval); 
+            quizShowAnswer = true; 
+            renderQuizOptions(-1); 
+            showNextQuizButton(); 
+        }
+
         function showNextQuizButton() {
-            document.getElementById('quiz-actions-container').innerHTML = `<button onclick="nextPlayItem()" class="px-10 py-5 rounded-2xl bg-fuchsia-600 text-white font-bold">ต่อไป</button>`;
+            document.getElementById('quiz-actions-container').innerHTML = `
+                <button onclick="nextPlayItem()" class="px-10 py-5 rounded-2xl bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-500 hover:to-pink-500 text-white font-black text-xl shadow-[0_0_25px_rgba(236,72,153,0.5)] transition-all active:scale-95 flex items-center justify-center gap-3 w-full max-w-sm mx-auto">
+                    ${currentPlayIndex + 1 < playQueue.length ? 'ข้อต่อไป <i data-lucide="arrow-right"></i>' : 'ดูสรุปคะแนน <i data-lucide="award"></i>'}
+                </button>
+            `;
+            lucide.createIcons();
         }
 
         function resetRouletteUI() { document.getElementById('roulette-text').innerText = "กด SPIN"; }
@@ -475,7 +560,7 @@
             let html = '';
             html += `<div class="flex items-center gap-3 mb-4"><button onclick="addPicture()" class="px-4 py-2 bg-cyan-500 rounded text-white font-bold">+ เพิ่มรูป</button><button onclick="saveAllToStorage()" class="px-4 py-2 bg-indigo-600 rounded text-white font-bold">บันทึก</button></div>`;
             pictures.forEach((p, i) => {
-                html += `<div class="bg-white/5 p-4 rounded-xl flex items-center justify-between gap-4"><div class="flex-1"><h3 class=\"mb-2\">รูปภาพ ${i+1}</h3><label class=\"${labelClass}\">Title</label><input type=\"text\" value=\"${p.title}\" class=\"${inputClass}\" onchange=\"updateData('picture', ${p.id}, 'title', this.value)\"><label class=\"${labelClass}\">URL</label><input type=\"text\" value=\"${p.url}\" class=\"${inputClass}\" onchange=\"updateData('picture', ${p.id}, 'url', this.value)\"><div class=\"grid grid-cols-2 gap-2 mt-2\"><div><label class=\"${labelClass}\">Cols</label><input type=\"number\" value=\"${p.cols}\" class=\"${inputClass}\" onchange=\"updateData('picture', ${p.id}, 'cols', parseInt(this.value)||1)\"></div><div><label class=\"${labelClass}\">Rows</label><input type=\"number\" value=\"${p.rows}\" class=\"${inputClass}\" onchange=\"updateData('picture', ${p.id}, 'rows', parseInt(this.value)||1)\"></div></div></div><div class=\"ml-4\"><button onclick=\"deleteItem('picture', ${p.id})\" class=\"${btnDangerClass}\">ลบ</button></div></div>`;
+                html += `<div class="bg-white/5 p-4 rounded-xl flex items-center justify-between gap-4"><div class="flex-1"><h3 class=\"mb-2\">รูปภาพ ${i+1}</h3><label class=\"${labelClass}\">Title</label><input type=\"text\" value=\"${p.title}\" class=\"${inputClass}\" onchange=\"updateData('picture', ${p.id}, 'title', this.value)\"><label class=\"${labelClass}\">URL</label><input type=\"text\" value=\"${p.url}\" class=\"${inputClass}\" onchange=\"updateData('picture', ${p.id}, 'url', this.value)\"><label class=\"${labelClass}\">Explanation (คำอธิบายเฉลย)</label><input type=\"text\" value=\"${p.explanation || ''}\" class=\"${inputClass}\" onchange=\"updateData('picture', ${p.id}, 'explanation', this.value)\"><div class=\"grid grid-cols-2 gap-2 mt-2\"><div><label class=\"${labelClass}\">Cols</label><input type=\"number\" value=\"${p.cols}\" class=\"${inputClass}\" onchange=\"updateData('picture', ${p.id}, 'cols', parseInt(this.value)||1)\"></div><div><label class=\"${labelClass}\">Rows</label><input type=\"number\" value=\"${p.rows}\" class=\"${inputClass}\" onchange=\"updateData('picture', ${p.id}, 'rows', parseInt(this.value)||1)\"></div></div></div><div class=\"ml-4\"><button onclick=\"deleteItem('picture', ${p.id})\" class=\"${btnDangerClass}\">ลบ</button></div></div>`;
             });
             document.getElementById('admin-content-picture').innerHTML = html;
         }
@@ -485,7 +570,7 @@
             html += `<div class="flex items-center gap-3 mb-4"><button onclick="addQuiz()" class="px-4 py-2 bg-fuchsia-500 rounded text-white font-bold">+ เพิ่มคำถาม</button><button onclick="saveAllToStorage()" class="px-4 py-2 bg-indigo-600 rounded text-white font-bold">บันทึก</button></div>`;
             quizzes.forEach((q, i) => {
                 const opts = q.options ? q.options.join('|') : '';
-                html += `<div class="bg-white/5 p-4 rounded-xl flex items-center justify-between gap-4"><div class="flex-1"><h3 class=\"mb-2\">คำถาม ${i+1}</h3><label class=\"${labelClass}\">Question</label><input type=\"text\" value=\"${q.question}\" class=\"${inputClass}\" onchange=\"updateData('quiz', ${q.id}, 'question', this.value)\"><label class=\"${labelClass}\">Options (| separated)</label><input type=\"text\" value=\"${opts}\" class=\"${inputClass}\" onchange=\"updateData('quiz', ${q.id}, 'options', this.value.split('|').map(s=>s.trim()))\"><label class=\"${labelClass}\">Answer index</label><input type=\"number\" value=\"${q.answer}\" class=\"${inputClass}\" onchange=\"updateData('quiz', ${q.id}, 'answer', parseInt(this.value)||0)\"><label class=\"${labelClass}\">TimeLimit (s)</label><input type=\"number\" value=\"${q.timeLimit}\" class=\"${inputClass}\" onchange=\"updateData('quiz', ${q.id}, 'timeLimit', parseInt(this.value)||15)\"></div><div class=\"ml-4\"><button onclick=\"deleteItem('quiz', ${q.id})\" class=\"${btnDangerClass}\">ลบ</button></div></div>`;
+                html += `<div class="bg-white/5 p-4 rounded-xl flex items-center justify-between gap-4"><div class="flex-1"><h3 class=\"mb-2\">คำถาม ${i+1}</h3><label class=\"${labelClass}\">Question</label><input type=\"text\" value=\"${q.question}\" class=\"${inputClass}\" onchange=\"updateData('quiz', ${q.id}, 'question', this.value)\"><label class=\"${labelClass}\">Options (| separated)</label><input type=\"text\" value=\"${opts}\" class=\"${inputClass}\" onchange=\"updateData('quiz', ${q.id}, 'options', this.value.split('|').map(s=>s.trim()))\"><label class=\"${labelClass}\">Answer index</label><input type=\"number\" value=\"${q.answer}\" class=\"${inputClass}\" onchange=\"updateData('quiz', ${q.id}, 'answer', parseInt(this.value)||0)\"><label class=\"${labelClass}\">Explanation (คำอธิบายเฉลย)</label><input type=\"text\" value=\"${q.explanation || ''}\" class=\"${inputClass}\" onchange=\"updateData('quiz', ${q.id}, 'explanation', this.value)\"><label class=\"${labelClass}\">TimeLimit (s)</label><input type=\"number\" value=\"${q.timeLimit}\" class=\"${inputClass}\" onchange=\"updateData('quiz', ${q.id}, 'timeLimit', parseInt(this.value)||15)\"></div><div class=\"ml-4\"><button onclick=\"deleteItem('quiz', ${q.id})\" class=\"${btnDangerClass}\">ลบ</button></div></div>`;
             });
             document.getElementById('admin-content-quiz').innerHTML = html;
         }
@@ -543,8 +628,9 @@
             if (!url) return;
             const cols = parseInt(prompt('จำนวนคอลัมน์ (cols)', '4')) || 4;
             const rows = parseInt(prompt('จำนวนแถว (rows)', '3')) || 3;
+            const explanation = prompt('คำอธิบายเฉลย (ปล่อยว่างได้)');
             const id = getNextId(pictures);
-            pictures.push({ id, title, url, cols, rows });
+            pictures.push({ id, title, url, cols, rows, explanation: explanation || '' });
             saveAllToStorage();
             renderAdminContent();
         }
@@ -557,8 +643,9 @@
             const options = opts.split('|').map(s => s.trim()).filter(Boolean);
             const answerIdx = parseInt(prompt('ดัชนีคำตอบ (เริ่มจาก 0)', '0')) || 0;
             const timeLimit = parseInt(prompt('เวลา (วินาที)', '15')) || 15;
+            const explanation = prompt('คำอธิบายเฉลย (ปล่อยว่างได้)');
             const id = getNextId(quizzes);
-            quizzes.push({ id, question, options, answer: answerIdx, timeLimit });
+            quizzes.push({ id, question, options, answer: answerIdx, timeLimit, explanation: explanation || '' });
             saveAllToStorage();
             renderAdminContent();
         }
@@ -577,7 +664,6 @@
         updateData = function(type, id, field, val) {
             _oldUpdateData(type, id, field, val);
             saveAllToStorage();
-            // re-render admin so changes reflect (keeps focus simple)
             renderAdminContent();
         }
     </script>
